@@ -11,22 +11,26 @@ import pandas as pd
 class BoxOfficeMojoScraper:
     def __init__(self):
         self.base_url = "https://www.boxofficemojo.com/year/world/2022/"
-
+"""The class initializes with a base URL, which is set to the 2022 worldwide box office page on Box Office Mojo."""
+    
     def scrape_movies(self):
         response = requests.get(self.base_url)
         if response.status_code != 200:
             print(f"Error: {response.status_code}")
             return pd.DataFrame()
+"""This def fetches the page content from the base URL using the requests library.
+If the HTTP response status is not 200 (OK), it prints an error message and returns an empty pandas DataFrame.
+The method then uses BeautifulSoup to parse the HTML content."""
 
         soup = BeautifulSoup(response.content, 'html.parser')
         # Find the table rows
-        rows = soup.find_all('tr')[1:]  # Skipping the header row
+        rows = soup.find_all('tr')[1:]  # Skipping the header row   """The method then uses BeautifulSoup to parse the HTML content.It finds all table rows and iterates over them to extract data"""
 
         movie_data = []
         for row in rows:
-            # Use 'find' on the row, not on individual cells
+            #For each row, extract various pieces of movie data such as rank, title
             rank = row.find('td', class_='a-text-right mojo-header-column mojo-truncate mojo-field-type-rank mojo-sort-column').get_text(strip=True)
-            title_cell = row.find('td', class_='a-text-left mojo-field-type-release_group')
+            title_cell = row.find('td', class_='a-text-left mojo-field-type-release_group')  
             title = title_cell.get_text(strip=True) if title_cell else 'No title'
             
             world_money_cell = row.find('td', class_='a-text-right mojo-field-type-money')
@@ -53,6 +57,9 @@ class BoxOfficeMojoScraper:
                 'Foreign Gross': For_money,
                 'Foreign %': For_percent
             })
+            
+"""The extracted data for each movie is stored in a dictionary and appended to a list
+then convert the list of movie data dictionaries into a pandas DataFrame and returns it """
 
         # Return the DataFrame created from the movie_data list
         return pd.DataFrame(movie_data)
@@ -63,8 +70,6 @@ class BoxOfficeMojoScraper:
 
 # In[14]:
 
-
-# Example usage
 scraper = BoxOfficeMojoScraper()
 movies_df = scraper.scrape_movies()
 movies_df.head()
@@ -133,16 +138,15 @@ movies_df['Domestic %'] = movies_df['Domestic %'].apply(convert_percentage)
 movies_df['Foreign %'] = movies_df['Foreign %'].apply(convert_percentage)
 
 percent_vars = ['Domestic %','Foreign %']
-# 创建直方图和箱形图
+
 plt.figure(figsize=(12, 12))
 
 for i, col in enumerate(percent_vars):
-    # 直方图
+    #histogram
     plt.subplot(2, 2, 2*i + 1)
     sns.histplot(movies_df[col], kde=True)
     plt.title(f'Histogram of {col}')
-
-    # 箱形图
+    #boxplot
     plt.subplot(2, 2, 2*i + 2)
     sns.boxplot(y=movies_df[col])
     plt.title(f'Boxplot of {col}')
