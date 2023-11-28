@@ -17,7 +17,9 @@ class SitemapParser:
     def __init__(self, robots_url):
         self.robots_url = robots_url  # URL of the robots.txt file
         self.sitemaps = self.get_sitemaps()  # List of sitemap URLs found in the robots.txt
-
+""""robots_url: This parameter takes the URL of a robots.txt file.
+sitemaps: A list of sitemap URLs found in the robots.txt file, obtained by calling the get_sitemaps method during initialization""""
+    
     def get_sitemaps(self):
         try:
             response = requests.get(self.robots_url)
@@ -28,6 +30,9 @@ class SitemapParser:
         except requests.RequestException as e:
             print(f"Error fetching robots.txt: {e}")
             return []
+        """This function fetches the robots.txt file from the specified URL.
+It processes the file to extract lines that start with 'Sitemap' and retrieves the actual sitemap URLs.
+If there is an issue with fetching the robots.txt file, it captures the exception and returns an empty list""""
 
     def parse_sitemap(self, sitemap_url):
         try:
